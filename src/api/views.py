@@ -30,8 +30,27 @@ def movie_list(request):
             # return an error
             return Response(serializer.errors)
 
-@api_view(['GET'])
+@api_view(['GET','PUT', 'DELETE'])
 def movie(request, pk):
+    
     a_movie = Movie.objects.get(pk=pk)
-    serializer = MovieSerializer(a_movie)
-    return Response(serializer.data)
+
+    if request.method == 'GET':
+        serializer = MovieSerializer(a_movie)
+        return Response(serializer.data)
+
+    if request.method == 'PUT':
+        serializer = MovieSerializer(a_movie,data=request.data)
+        # check if it valid
+        if serializer.is_valid():
+            # save the data
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            # return an error
+            return Response(serializer.errors)
+
+
+    if request.method == 'DELETE':
+        a_movie.delete()
+        return Response({"message":"Record Deleted"})
